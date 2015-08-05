@@ -1,0 +1,16 @@
+{
+  "name": "minube/google-translate",
+  "description": "Google Translate client class",
+  "keywords": ["Translation"],
+  "homepage": "https://github.com/minube/google-translate",
+  "license": "MIT",
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=5.3.3",
+    "guzzlehttp/guzzle": "3.8.1"
+  },
+  "autoload": {
+    "psr-0": { "Minube\\GoogleTranslate": "" }
+  },
+  "target-dir": "Minube/GoogleTranslate"
+}

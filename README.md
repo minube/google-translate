@@ -1,2 +1,2 @@
-# google-translator
-Class to call the Google Translator API
+# Google translate
+Class to call the Google Translate API
