@@ -1,13 +1,12 @@
 <?php
 namespace Minube\GoogleTranslate;
 
-use Guzzle\Http\Client;
-use Guzzle\Common\Collection;
+use Net_Http_Client;
 
 class Translator
 {
-    const TEST_ENVIRONMENT = 'test';
     const PLURAL_SEPARATOR = '|';
+
     /**
      * @var string
      */
@@ -19,7 +18,7 @@ class Translator
     protected $parametersEscaper;
 
     /**
-     * @var Client
+     * @var Net_Http_Client
      */
     protected $client;
 
@@ -32,19 +31,14 @@ class Translator
      * Class constructor
      * @param string $apiKey
      * @param ParametersEscaper $parametersEscaper
-     * @param string $environment
      */
-    public function __construct($apiKey, ParametersEscaper $parametersEscaper, $environment)
+    public function __construct($apiKey, ParametersEscaper $parametersEscaper)
     {
         $this->apiKey = $apiKey;
         $this->parametersEscaper = $parametersEscaper;
-        $this->environment = $environment;
 
-        $headers = new Collection();
-        $headers->add('X-HTTP-Method-Override', 'GET');
-
-        $this->client = new Client();
-        $this->client->setDefaultHeaders($headers);
+        $this->client = new Net_Http_Client();
+        $this->client->setHeader('X-HTTP-Method-Override', 'GET');
     }
 
     /**
@@ -82,20 +76,6 @@ class Translator
      */
     public function translateString($string, $langFrom, $langTo)
     {
-        return $this->environment != self::TEST_ENVIRONMENT
-            ? $this->translateStringProd($string, $langFrom, $langTo)
-            : $this->translateStringTest($string, $langFrom, $langTo);
-    }
-
-    /**
-     * @param string $string
-     * @param string $langFrom
-     * @param string $langTo
-     * @return mixed|string
-     * @throws \Exception
-     */
-    private function translateStringProd($string, $langFrom, $langTo)
-    {
         $stringEscaped = $this->parametersEscaper->escapeParameters($string);
 
         $postBody = array(
@@ -105,41 +85,15 @@ class Translator
             'target' => $langTo,
         );
 
-        $request = $this->client->post('https://www.googleapis.com/language/translate/v2', null, $postBody);
-        $response = $request->send();
+        $this->client->post('https://www.googleapis.com/language/translate/v2', $postBody);
+        $response = $this->client->getResponse();
 
-        $responseArray = $response->json();
+        $responseArray = json_decode($response->getBody(), true);
         $translatedString = $responseArray['data']['translations']['0']['translatedText'];
 
         $string = html_entity_decode($translatedString);
         $string = str_replace('&#39;', '"', $string);
         $string = $this->parametersEscaper->unEscapeParameters($string);
-
-        return $string;
-    }
-
-    /**
-     * This function use only for test.
-     * You can't use it for translate.
-     * For more info visit https://developers.google.com/translate/v2/faq
-     *
-     * @param $string
-     * @param $langFrom
-     * @param $langTo
-     * @return string translated from langFrom to langTo
-     */
-    private function translateStringTest($string, $langFrom, $langTo)
-    {
-        $stringEscaped = $this->parametersEscaper->escapeParameters($string);
-        $url = sprintf('http://translate.google.ru/translate_a/t?client=x&text=%s&hl=%s&sl=%s&tl=%s&ie=UTF-8&oe=UTF-8&multires=1&otf=2&trs=1&ssel=3&tsel=6&sc=1', urlencode($stringEscaped), $langFrom, $langFrom, $langTo);
-
-        $request = $this->client->get($url);
-        $response = $request->send();
-
-        $responseArray = $response->json();
-        $translatedString = $responseArray['sentences']['0']['trans'];
-
-        $string = $this->parametersEscaper->unEscapeParameters($translatedString);
 
         return $string;
     }
