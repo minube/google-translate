@@ -10,7 +10,7 @@
     "guzzlehttp/guzzle": "3.8.1"
   },
   "autoload": {
-    "psr-0": { "Minube\\GoogleTranslate": "" }
+    "psr-0": { "Minube\\GoogleTranslate\\": "src/" }
   },
   "target-dir": "Minube/GoogleTranslate"
 }
