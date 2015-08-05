@@ -5,13 +5,13 @@
   "homepage": "https://github.com/minube/google-translate",
   "license": "MIT",
   "type": "library",
-  "minimum-stability": "dev",
   "require": {
     "php": ">=5.3.3",
     "guzzlehttp/guzzle": "3.8.1"
   },
   "autoload": {
-    "psr-0": { "Minube\\GoogleTranslate": "src/" }
-  },
-  "target-dir": "Minube/GoogleTranslate"
+    "psr-0": {
+      "Minube\\GoogleTranslate\\": "src/"
+    }
+  }
 }
